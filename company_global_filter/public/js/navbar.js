@@ -1,228 +1,305 @@
-frappe.templates.navbar = `
-    <header class="navbar navbar-expand sticky-top" role="navigation">
-        <div class="container">
-          <a class="navbar-brand navbar-home" href="/app">
-            <img
-              class="app-logo"
-              style="width: {{ navbar_settings.logo_width || 60 }}px"
-              src="{{ frappe.boot.app_logo_url }}"
-              alt="{{ __("App Logo") }}"
-            >
-          </a>
-          <ul class="nav navbar-nav d-none d-sm-flex" id="navbar-breadcrumbs"></ul>
-          <div class="collapse navbar-collapse justify-content-end">
-			<form class="form-inline fill-width justify-content-end" role="search" onsubmit="return false;">
-				{% if (frappe.boot.read_only) { %}
-					<span class="indicator-pill yellow no-indicator-dot read-only-banner" title="{%= __("Your site is undergoing maintenance or being updated.") %}">
-						{%= __("Read Only Mode") %}
-					</span>
-				{% } %}
-				{% if (frappe.boot.user.impersonated_by) { %}
-					<span class="indicator-pill red no-indicator-dot" title="{%= __("You are impersonating as another user.") %}">
-						{%= __("Impersonating {0}", [frappe.boot.user.name]) %}
-					</span>
-				{% } %}
-				<div class="input-group search-bar text-muted hidden">
-					<input
-						id="navbar-search"
-						type="text"
-						class="form-control"
-						placeholder="{%= __('Search or type a command ({0})', [frappe.utils.is_mac() ? '⌘ + G' : 'Ctrl + G']) %}"
-						aria-haspopup="true"
-					>
-					<span class="search-icon">
-						<svg class="icon icon-sm"><use href="#icon-search"></use></svg>
-					</span>
-				</div>
-			</form>
-			<ul class="navbar-nav">
-				<li class="nav-item dropdown dropdown-notifications dropdown-mobile hidden">
-					<button
-						class="btn-reset nav-link notifications-icon text-muted"
-						data-toggle="dropdown"
-						aria-haspopup="true"
-						aria-expanded="false"
-					>
-						<span class="notifications-seen">
-							<span class="sr-only">{{ __("No new notifications") }}</span>
-							<svg class="es-icon icon-sm" style="stroke:none;"><use href="#es-line-notifications"></use></svg>
-						</span>
-						<span class="notifications-unseen">
-							<span class="sr-only">{{ __("You have unseen notifications") }}</span>
-							<svg class="es-icon icon-sm"><use href="#es-line-notifications-unseen"></use></svg>
-						</span>
-					</button>
-					<div class="dropdown-menu notifications-list dropdown-menu-right" role="menu">
-						<div class="notification-list-header">
-							<div class="header-items"></div>
-							<div class="header-actions"></div>
-						</div>
-						<div class="notification-list-body">
-							<div class="panel-notifications"></div>
-							<div class="panel-events"></div>
-						</div>
-					</div>
-				</li>
-				<li class="nav-item dropdown dropdown-message dropdown-mobile hidden">
-					<button
-						class="btn-reset nav-link notifications-icon text-muted"
-						data-toggle="dropdown"
-						aria-haspopup="true"
-						aria-expanded="true"
-					>
-						<span>
-							<svg class="es-icon icon-sm"><use href="#es-line-chat-alt"></use></svg>
-						</span>
-					</button>
-				</li>
-				<li class="vertical-bar d-none d-sm-block"></li>
-				<li class="nav-item dropdown dropdown-mobile d-none d-lg-block">
-					<button
-						class="btn btn-primary"
-						data-toggle="dropdown"
-						aria-controls="toolbar-company"
-					>
-						{% if frappe.defaults.get_user_default("Company") %}
-							{{ frappe.defaults.get_user_default("Company") }}
-						{% else %}
-							{{ __("Select Company") }}
-						{% endif %}
-					</button>
 
-					<div class="dropdown-menu dropdown-menu-right" id="toolbar-company" role="menu">
-						<div class="p-2">
-							<input
-								type="text"
-								class="form-control"
-								placeholder="Search Company"
-								id="company-search"
-							/>
-						</div>
-						<div id="company-list" class="company-list-scrollable px-2"></div>
-					</div>
-				</li>
-				<li class="vertical-bar d-none d-sm-block"></li>
-				<li class="nav-item dropdown dropdown-help dropdown-mobile d-none d-lg-block">
-					<button
-						class="btn-reset nav-link"
-						data-toggle="dropdown"
-						aria-controls="toolbar-help"
-						aria-label="{{ __("Help Dropdown") }}"
-					>
-						<span>
-							{{ __("Help") }}
-							<svg class="es-icon icon-xs"><use href="#es-line-down"></use></svg>
-						</span>
-					</button>
-					<div class="dropdown-menu dropdown-menu-right" id="toolbar-help" role="menu">
-						<div id="help-links"></div>
-						<div class="dropdown-divider documentation-links"></div>
-						{% for item in navbar_settings.help_dropdown %}
-							{% if (!item.hidden) { %}
-								{% if (item.route) { %}
-									<a class="dropdown-item" href="{{ item.route }}">
-										{%= __(item.item_label) %}
-									</a>
-								{% } else if (item.action) { %}
-									<button class="btn-reset dropdown-item" onclick="return {{ item.action }}">
-										{%= __(item.item_label) %}
-									</button>
-								{% } else { %}
-									<div class="dropdown-divider"></div>
-								{% } %}
-							{% } %}
-						{% endfor %}
-					</div>
-				</li>
-				<li class="nav-item dropdown dropdown-navbar-user dropdown-mobile">
-					<button
-						class="btn-reset nav-link"
-						data-toggle="dropdown"
-						aria-label="{{ __("User Menu") }}"
-					>
-						{{ avatar }}
-					</button>
-					<div class="dropdown-menu dropdown-menu-right" id="toolbar-user" role="menu">
-						{% for item in navbar_settings.settings_dropdown %}
-							{% if (!item.hidden) { %}
-								{% if (item.route) { %}
-									<a class="dropdown-item" href="{{ item.route }}">
-										{%= __(item.item_label) %}
-									</a>
-								{% } else if (item.action) { %}
-									<button class="btn-reset dropdown-item" onclick="return {{ item.action }}">
-										{%= __(item.item_label) %}
-									</button>
-								{% } else { %}
-									<div class="dropdown-divider"></div>
-								{% } %}
-							{% } %}
-						{% endfor %}
-					</div>
-				</li>
-			</ul>
-		  </div>
-        </div>
-    </header>
-  `;
+frappe.provide("company_global_filter.ui");
 
-frappe.after_ajax(() => {
-	frappe
-		.call("company_global_filter.hook_functions.global_company_filter.get_company_list")
-		.then((r) => {
-			const companies = r.message || [];
-			const container = document.getElementById("company-list");
-			const searchInput = document.getElementById("company-search");
+company_global_filter.ui.SidebarCompanySwitcher = class {
+	constructor() {
+		this.companies = [];
+		this.active_company_logo = null;
+		this._making = false; // guard against concurrent async calls
+		this.inject_styles();
+		this.init_observer();
+	}
 
-			if (!container || !searchInput) return;
+	get_initials(name) {
+		return name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
+	}
 
-			function renderList(filteredCompanies) {
-				container.innerHTML = "";
-
-				if (!filteredCompanies.length) {
-					container.innerHTML =
-						'<div class="text-muted small px-2 py-1">No matching companies</div>';
-					return;
+	inject_styles() {
+		if ($("#company-switcher-styles").length) return;
+		$("<style id='company-switcher-styles'>")
+			.prop("type", "text/css")
+			.html(`
+				.company-switcher-list {
+					margin: 4px 0;
+					padding: 0 3px;
+				}
+				.company-switcher-list .switcher-btn {
+					height: 30px !important;
+					display: flex !important;
+					align-items: center !important;
+					padding: 0 8px !important;
+					border-radius: 6px !important;
+					background: transparent !important;
+					border: none !important;
+					width: 100% !important;
+					transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+					font-size: 14px !important;
+					color: rgb(56, 56, 56) !important;
+					text-decoration: none !important;
+					cursor: pointer;
+				}
+				.company-switcher-list .switcher-btn:hover {
+					background-color: var(--bg-light-gray, #f3f3f3) !important;
+				}
+				.company-switcher-list .switcher-btn:active {
+					background-color: var(--bg-gray, #ebebeb) !important;
 				}
 
-				filteredCompanies.forEach((company_name) => {
-					const btn = document.createElement("button");
-					btn.className = "btn-reset dropdown-item";
-					btn.textContent = company_name;
-					btn.onclick = () => {
-						frappe.call({
-							method: "frappe.core.doctype.session_default_settings.session_default_settings.set_session_default_values",
-							args: {
-								default_values: { company: company_name },
-							},
-							callback: function (data2) {
-								if (data2.message == "success") {
-									frappe.show_alert({
-										message: __("Session Defaults Saved"),
-										indicator: "green",
-									});
-									frappe.ui.toolbar.clear_cache();
-								} else {
-									frappe.show_alert({
-										message: __(
-											"An error occurred while setting Session Defaults"
-										),
-										indicator: "red",
-									});
-								}
-							},
-						});
-					};
-					container.appendChild(btn);
-				});
+				.company-switcher-list .company-icon-container {
+					width: 18px;
+					height: 18px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					margin-right: 12px;
+					flex-shrink: 0;
+				}
+				.company-switcher-list .company-logo-img {
+					max-width: 100%;
+					max-height: 100%;
+					border-radius: 2px;
+					object-fit: contain;
+				}
+				.company-switcher-list .company-avatar {
+					width: 18px;
+					height: 18px;
+					border-radius: 4px;
+					background-color: var(--primary-color, #171717);
+					color: #fff;
+					font-size: 8px;
+					font-weight: 600;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					text-transform: uppercase;
+				}
+
+				.company-switcher-list .switcher-text {
+					flex: 1;
+					font-weight: 420;
+					line-height: 1.2;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+
+				.company-switcher-list .switcher-icon {
+					font-size: 10px;
+					color: rgb(140, 140, 140);
+					margin-left: 8px;
+				}
+
+				/* Collapsed Sidebar Logic */
+				.company-switcher-list.is-collapsed {
+					padding: 0 !important;
+					display: flex;
+					justify-content: center;
+				}
+				.company-switcher-list.is-collapsed .switcher-btn {
+					padding: 0 !important;
+					justify-content: center !important;
+					width: 30px !important;
+				}
+				.company-switcher-list.is-collapsed .company-icon-container {
+					margin-right: 0 !important;
+				}
+				.company-switcher-list.is-collapsed .switcher-text,
+				.company-switcher-list.is-collapsed .switcher-icon {
+					display: none !important;
+				}
+
+				/* Dropdown — fixed-positioned so it escapes sidebar overflow/clipping */
+				#sidebar-company-dropdown {
+					position: fixed !important;
+					width: 220px;
+					border-radius: 10px;
+					margin-top: 4px;
+					box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+					z-index: 1060;
+				}
+			`)
+			.appendTo("head");
+	}
+
+	init_observer() {
+		const targetNode = document.body;
+		const config = { childList: true, subtree: true };
+
+		const callback = (mutationsList, observer) => {
+			if (!$(".company-switcher-list").length && $(".body-sidebar").length && !this._making) {
+				this.make();
+			}
+		};
+
+		const observer = new MutationObserver(callback);
+		observer.observe(targetNode, config);
+
+		$(document).ready(() => this.make());
+
+		// Collapse detection
+		setInterval(() => {
+			const $sidebar = $(".body-sidebar");
+			const $switcher = $(".company-switcher-list");
+			if ($sidebar.length && $switcher.length) {
+				const width = $sidebar.outerWidth();
+				if (width > 0 && width < 100) {
+					$switcher.addClass("is-collapsed");
+				} else {
+					$switcher.removeClass("is-collapsed");
+				}
+			}
+		}, 300);
+	}
+
+	async make() {
+		// Prevent duplicate creation — async race condition guard
+		if (this._making || $(".company-switcher-list").length) return;
+		this._making = true;
+
+		try {
+			let $sidebar = $(".body-sidebar");
+			if (!$sidebar.length) return;
+
+			let company = frappe.defaults.get_user_default("Company") || __("Select Company");
+
+			// Fetch logo for active company
+			if (company !== __("Select Company")) {
+				try {
+					const r = await frappe.db.get_value('Company', company, 'company_logo');
+					this.active_company_logo = r.message.company_logo;
+				} catch (e) {
+					console.log("Error fetching company logo", e);
+				}
 			}
 
-			renderList(companies);
+			// Double-check after await — another call may have finished first
+			if ($(".company-switcher-list").length) return;
 
-			searchInput.addEventListener("input", () => {
-				const value = searchInput.value.toLowerCase();
-				const filtered = companies.filter((name) => name.toLowerCase().includes(value));
-				renderList(filtered);
+			const icon_html = this.active_company_logo
+				? `<img src="${this.active_company_logo}" class="company-logo-img">`
+				: `<div class="company-avatar">${this.get_initials(company)}</div>`;
+
+			this.$container = $(`
+				<div class="company-switcher-list">
+					<div class="dropdown">
+						<button class="switcher-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<div class="company-icon-container">
+								${icon_html}
+							</div>
+							<span class="switcher-text">${company}</span>
+							<i class="fa fa-chevron-down switcher-icon"></i>
+						</button>
+						<div class="dropdown-menu shadow-lg border" id="sidebar-company-dropdown">
+							<div class="px-3 py-2 border-bottom sticky-top bg-white">
+								<input type="text" class="form-control form-control-sm" placeholder="${__("Search Company...")}" id="sidebar-company-search" autocomplete="off" style="border-radius: 6px;">
+							</div>
+							<div id="sidebar-company-options" class="py-1">
+								<div class="text-muted small px-3 py-2 text-center small italic">${__("Loading...")}</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			`);
+
+			let $header = $sidebar.find(".sidebar-header");
+			if ($header.length) {
+				this.$container.insertAfter($header);
+			} else {
+				$sidebar.prepend(this.$container);
+			}
+
+			this.bind_events();
+			this.load_companies();
+		} finally {
+			this._making = false;
+		}
+	}
+
+	bind_events() {
+		// Align fixed-position dropdown to the trigger button on open
+		this.$container.on("show.bs.dropdown", () => {
+			const btn = this.$container.find(".switcher-btn")[0];
+			if (!btn) return;
+			const rect = btn.getBoundingClientRect();
+			const $dropdown = this.$container.find("#sidebar-company-dropdown");
+			$dropdown.css({
+				top: rect.bottom + 4,
+				left: rect.left,
 			});
 		});
-});
+
+		this.$container.on("shown.bs.dropdown", () => {
+			this.$container.find("#sidebar-company-search").focus();
+		});
+
+		this.$container.find("#sidebar-company-search").on("input", (e) => {
+			let val = $(e.currentTarget).val().toLowerCase();
+			this.render_list(val);
+		});
+
+		this.$container.find("#sidebar-company-search").on("click", (e) => {
+			e.stopPropagation();
+		});
+	}
+
+	load_companies() {
+		frappe.call({
+			method: 'company_global_filter.hook_functions.global_company_filter.get_company_list',
+			callback: (r) => {
+				this.companies = r.message || [];
+				this.render_list();
+			}
+		});
+	}
+
+	render_list(filter = "") {
+		let $options = this.$container.find("#sidebar-company-options");
+		if (!$options.length) return;
+
+		$options.empty();
+
+		let filtered = this.companies.filter(c => c.toLowerCase().includes(filter));
+
+		if (!filtered.length) {
+			$options.append(`<div class="text-muted small px-3 py-2 text-center italic">${__("No matching companies")}</div>`);
+			return;
+		}
+
+		filtered.forEach(name => {
+			let is_current = name === frappe.defaults.get_user_default("Company");
+			let $btn = $(`
+				<button class="btn-reset dropdown-item py-2 px-3 ellipsis d-flex align-items-center ${is_current ? 'active' : ''}" style="font-size: 13px; border-radius: 4px; margin: 2px 8px; width: calc(100% - 16px);">
+					<span class="ellipsis">${name}</span>
+					${is_current ? '<i class="fa fa-check ml-auto text-primary" style="font-size: 10px;"></i>' : ''}
+				</button>
+			`);
+			$btn.on("click", () => {
+				this.set_company(name);
+			});
+			$options.append($btn);
+		});
+	}
+
+	set_company(company) {
+		frappe.dom.freeze(__("Changing Company..."));
+		frappe.call({
+			method: "frappe.core.doctype.session_default_settings.session_default_settings.set_session_default_values",
+			args: {
+				default_values: { company: company }
+			},
+			callback: function (r) {
+				if (r.message == "success") {
+					frappe.show_alert({
+						message: __("Company set to {0}", [company]),
+						indicator: "green"
+					});
+					location.reload();
+				} else {
+					frappe.dom.unfreeze();
+				}
+			}
+		});
+	}
+};
+
+new company_global_filter.ui.SidebarCompanySwitcher();

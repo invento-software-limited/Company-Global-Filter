@@ -1,0 +1,98 @@
+name: Auto Tag and Release
+
+on:
+  pull_request:
+    branches:
+      - version-16
+    types:
+      - closed
+
+permissions:
+  contents: write
+
+jobs:
+  tag-and-release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Parse Version and Changelog
+        id: parse_version
+        run: |
+          python -c "
+          import os
+
+          # Read version
+          with open('company_global_filter/__init__.py', 'r') as f:
+              for line in f:
+                  if line.strip().startswith('__version__'):
+                      version = line.split('=')[1].strip().strip('\"\'')
+                      break
+              else:
+                  raise ValueError('__version__ not found in company_global_filter/__init__.py')
+
+          major = version.split('.')[0]
+          changelog_file = f'company_global_filter/change_log/v{major}/v{version}.md'
+
+          print(f'Detected version: {version}')
+
+          if not os.path.exists(changelog_file):
+              print(f'Changelog file {changelog_file} not found!')
+              content = f'Release v{version}'
+          else:
+              with open(changelog_file, 'r', encoding='utf-8') as f:
+                  content = f.read().strip()
+
+          # Write version to env
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f'version={version}\n')
+
+          # Write changelog content to release_notes.md
+          with open('release_notes.md', 'w', encoding='utf-8') as f:
+              f.write(content)
+          "
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          version="${{ steps.parse_version.outputs.version }}"
+          if git rev-parse "v$version" >/dev/null 2>&1; then
+            echo "Tag v$version already exists. Skipping tagging and release."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v$version does not exist. Proceeding."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Git Tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          version="${{ steps.parse_version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$version" -m "Release v$version"
+          git push origin "v$version"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.parse_version.outputs.version }}
+          name: v${{ steps.parse_version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

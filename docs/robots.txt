@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://invento-software-limited.github.io/Company-Global-Filter/sitemap.xml

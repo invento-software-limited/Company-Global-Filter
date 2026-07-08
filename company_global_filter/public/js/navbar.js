@@ -1,3 +1,4 @@
+/* globals company_global_filter */
 
 frappe.provide("company_global_filter.ui");
 
@@ -11,14 +12,20 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 	}
 
 	get_initials(name) {
-		return name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
+		return name
+			.split(" ")
+			.map((n) => n[0])
+			.join("")
+			.toUpperCase()
+			.substring(0, 2);
 	}
 
 	inject_styles() {
 		if ($("#company-switcher-styles").length) return;
 		$("<style id='company-switcher-styles'>")
 			.prop("type", "text/css")
-			.html(`
+			.html(
+				`
 				.company-switcher-list {
 					margin: 4px 0;
 					padding: 0 3px;
@@ -117,7 +124,8 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 					box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
 					z-index: 1060;
 				}
-			`)
+			`
+			)
 			.appendTo("head");
 	}
 
@@ -126,7 +134,11 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 		const config = { childList: true, subtree: true };
 
 		const callback = (mutationsList, observer) => {
-			if (!$(".company-switcher-list").length && $(".body-sidebar").length && !this._making) {
+			if (
+				!$(".company-switcher-list").length &&
+				$(".body-sidebar").length &&
+				!this._making
+			) {
 				this.make();
 			}
 		};
@@ -165,7 +177,7 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 			// Fetch logo for active company
 			if (company !== __("Select Company")) {
 				try {
-					const r = await frappe.db.get_value('Company', company, 'company_logo');
+					const r = await frappe.db.get_value("Company", company, "company_logo");
 					this.active_company_logo = r.message.company_logo;
 				} catch (e) {
 					console.log("Error fetching company logo", e);
@@ -191,7 +203,9 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 						</button>
 						<div class="dropdown-menu shadow-lg border" id="sidebar-company-dropdown">
 							<div class="px-3 py-2 border-bottom sticky-top bg-white">
-								<input type="text" class="form-control form-control-sm" placeholder="${__("Search Company...")}" id="sidebar-company-search" autocomplete="off" style="border-radius: 6px;">
+								<input type="text" class="form-control form-control-sm" placeholder="${__(
+									"Search Company..."
+								)}" id="sidebar-company-search" autocomplete="off" style="border-radius: 6px;">
 							</div>
 							<div id="sidebar-company-options" class="py-1">
 								<div class="text-muted small px-3 py-2 text-center small italic">${__("Loading...")}</div>
@@ -244,11 +258,11 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 
 	load_companies() {
 		frappe.call({
-			method: 'company_global_filter.hook_functions.global_company_filter.get_company_list',
+			method: "company_global_filter.hook_functions.global_company_filter.get_company_list",
 			callback: (r) => {
 				this.companies = r.message || [];
 				this.render_list();
-			}
+			},
 		});
 	}
 
@@ -258,19 +272,25 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 
 		$options.empty();
 
-		let filtered = this.companies.filter(c => c.toLowerCase().includes(filter));
+		let filtered = this.companies.filter((c) => c.toLowerCase().includes(filter));
 
 		if (!filtered.length) {
-			$options.append(`<div class="text-muted small px-3 py-2 text-center italic">${__("No matching companies")}</div>`);
+			$options.append(
+				`<div class="text-muted small px-3 py-2 text-center italic">${__(
+					"No matching companies"
+				)}</div>`
+			);
 			return;
 		}
 
-		filtered.forEach(name => {
+		filtered.forEach((name) => {
 			let is_current = name === frappe.defaults.get_user_default("Company");
 			let $btn = $(`
-				<button class="btn-reset dropdown-item py-2 px-3 ellipsis d-flex align-items-center ${is_current ? 'active' : ''}" style="font-size: 13px; border-radius: 4px; margin: 2px 8px; width: calc(100% - 16px);">
+				<button class="btn-reset dropdown-item py-2 px-3 ellipsis d-flex align-items-center ${
+					is_current ? "active" : ""
+				}" style="font-size: 13px; border-radius: 4px; margin: 2px 8px; width: calc(100% - 16px);">
 					<span class="ellipsis">${name}</span>
-					${is_current ? '<i class="fa fa-check ml-auto text-primary" style="font-size: 10px;"></i>' : ''}
+					${is_current ? '<i class="fa fa-check ml-auto text-primary" style="font-size: 10px;"></i>' : ""}
 				</button>
 			`);
 			$btn.on("click", () => {
@@ -285,19 +305,19 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 		frappe.call({
 			method: "frappe.core.doctype.session_default_settings.session_default_settings.set_session_default_values",
 			args: {
-				default_values: { company: company }
+				default_values: { company: company },
 			},
 			callback: function (r) {
 				if (r.message == "success") {
 					frappe.show_alert({
 						message: __("Company set to {0}", [company]),
-						indicator: "green"
+						indicator: "green",
 					});
 					location.reload();
 				} else {
 					frappe.dom.unfreeze();
 				}
-			}
+			},
 		});
 	}
 };

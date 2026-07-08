@@ -442,6 +442,147 @@
       .sidebar, .topbar, .sidebar-overlay, .breadcrumb { display: none !important; }
       .main { margin-left: 0; padding: 20px; }
     }
+
+    /* ===== INVENTO FEATURED CARD ===== */
+    .invento-featured-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .invento-featured-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #2F3181 0%, #0E7059 50%, #008B47 100%);
+    }
+    .invento-featured-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-color: #cbd5e1;
+    }
+    .invento-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .invento-logo-wrapper {
+      max-width: 240px;
+      display: flex;
+      align-items: center;
+    }
+    .invento-logo-img {
+      width: 100%;
+      height: auto;
+      max-height: 52px;
+      object-fit: contain;
+    }
+    .invento-badge {
+      background: linear-gradient(90deg, rgba(47,49,129,0.08) 0%, rgba(0,139,71,0.08) 100%);
+      color: #0e7059;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: 1px solid rgba(14, 112, 89, 0.15);
+    }
+    .invento-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .invento-card-title {
+      font-size: 18px !important;
+      font-weight: 700 !important;
+      color: #1e293b !important;
+      margin: 0 !important;
+      line-height: 1.4 !important;
+      border-bottom: none !important;
+      padding-bottom: 0 !important;
+      display: block !important;
+    }
+    .invento-card-description {
+      font-size: 14.5px !important;
+      line-height: 1.6 !important;
+      color: #475569 !important;
+      margin: 0 !important;
+    }
+    .invento-card-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .invento-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-decoration: none !important;
+    }
+    .invento-btn-primary {
+      background: linear-gradient(135deg, #2F3181 0%, #008B47 100%);
+      color: #ffffff !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .invento-btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .invento-btn-secondary {
+      background: #ffffff;
+      color: #334155 !important;
+      border: 1px solid #cbd5e1;
+    }
+    .invento-btn-secondary:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: #0f172a !important;
+    }
+    @media (prefers-color-scheme: dark) {
+      .invento-featured-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-color: #334155;
+      }
+      .invento-featured-card:hover {
+        border-color: #475569;
+      }
+      .invento-card-title {
+        color: #f8fafc !important;
+      }
+      .invento-card-description {
+        color: #94a3b8 !important;
+      }
+      .invento-btn-secondary {
+        background: #1e293b;
+        color: #cbd5e1 !important;
+        border-color: #475569;
+      }
+      .invento-btn-secondary:hover {
+        background: #334155;
+        color: #f8fafc !important;
+        border-color: #64748b;
+      }
+    }
   </style>
 </head>
 <body>
@@ -497,6 +638,32 @@
           <span class="sep">›</span>
           <span id="current-page-label">Product Overview</span>
         </nav>
+
+        <!-- Invento Software Limited Featured Card -->
+        <div class="invento-featured-card">
+          <div class="invento-card-header">
+            <div class="invento-logo-wrapper">
+              <img src="assets/invento-logo-color.svg" alt="Invento Software Limited Logo" class="invento-logo-img" />
+            </div>
+            <span class="invento-badge">Featured Developer</span>
+          </div>
+          <div class="invento-card-body">
+            <h2 class="invento-card-title">Featured Enterprise Solution by Invento Software Limited</h2>
+            <p class="invento-card-description">
+              Invento Software Limited is a premier global software development agency specializing in customized, robust, and NBR-compliant ERPNext and Frappe solutions. We deliver cutting-edge automation, seamless integrations, and high-performance business architectures tailored to your enterprise needs.
+            </p>
+          </div>
+          <div class="invento-card-actions">
+            <a href="https://invento.com.bd" target="_blank" rel="noopener noreferrer" class="invento-btn invento-btn-primary">
+              <span>Visit Our Website</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </a>
+            <a href="mailto:hello@invento.com.bd" class="invento-btn invento-btn-secondary">
+              <span>Contact Support</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </a>
+          </div>
+        </div>
         <div id="content"><div class="loading">Loading documentation</div></div>
       </article>
     </main>

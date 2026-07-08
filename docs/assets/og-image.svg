@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f"/>
+      <stop offset="50%" style="stop-color:#1e40af"/>
+      <stop offset="100%" style="stop-color:#1e3a8a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Subtle grid pattern -->
+  <g opacity="0.06" stroke="#fff" stroke-width="1">
+    <line x1="0" y1="100" x2="1200" y2="100"/>
+    <line x1="0" y1="200" x2="1200" y2="200"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="400" x2="1200" y2="400"/>
+    <line x1="0" y1="500" x2="1200" y2="500"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
+  </g>
+  <!-- Shield icon -->
+  <g transform="translate(80, 120)">
+    <rect x="0" y="10" width="80" height="90" rx="12" fill="none" stroke="white" stroke-width="5"/>
+    <path d="M40 5 L10 25 L10 60 C10 80 25 90 40 95 C55 90 70 80 70 60 L70 25 Z" fill="none" stroke="#60a5fa" stroke-width="4"/>
+    <path d="M30 50 L38 58 L50 42" fill="none" stroke="#60a5fa" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- Triangles accent -->
+  <polygon points="1100,80 1160,80 1130,130" fill="#60a5fa" opacity="0.3"/>
+  <polygon points="1060,500 1140,500 1100,560" fill="#60a5fa" opacity="0.15"/>
+  <!-- Title -->
+  <text x="180" y="170" font-family="system-ui, -apple-system, sans-serif" font-size="54" font-weight="700" fill="#ffffff">Company Global Filter</text>
+  <!-- Feature pills -->
+  <rect x="180" y="220" width="290" height="44" rx="22" fill="none" stroke="#60a5fa" stroke-width="2"/>
+  <text x="325" y="249" font-family="system-ui, sans-serif" font-size="22" fill="#60a5fa" text-anchor="middle" font-weight="600">🔒 Multi-Company Data Isolation</text>
+  <rect x="490" y="220" width="230" height="44" rx="22" fill="none" stroke="#60a5fa" stroke-width="2"/>
+  <text x="605" y="249" font-family="system-ui, sans-serif" font-size="22" fill="#60a5fa" text-anchor="middle" font-weight="600">👤 Company Switcher</text>
+  <rect x="740" y="220" width="200" height="44" rx="22" fill="none" stroke="#60a5fa" stroke-width="2"/>
+  <text x="840" y="249" font-family="system-ui, sans-serif" font-size="22" fill="#60a5fa" text-anchor="middle" font-weight="600">🔧 Auto-Filtering</text>
+  <!-- Description -->
+  <text x="180" y="325" font-family="system-ui, sans-serif" font-size="28" fill="#93c5fd">ERPNext app for enforcing company-level visibility</text>
+  <text x="180" y="370" font-family="system-ui, sans-serif" font-size="28" fill="#93c5fd">across all doctypes — secure, seamless, automatic.</text>
+  <!-- Footer line -->
+  <line x1="80" y1="500" x2="1120" y2="500" stroke="#3b82f6" stroke-width="1" opacity="0.5"/>
+  <!-- Footer -->
+  <text x="80" y="555" font-family="system-ui, sans-serif" font-size="20" fill="#60a5fa">Invento Software Limited</text>
+  <text x="1120" y="555" font-family="system-ui, sans-serif" font-size="20" fill="#60a5fa" text-anchor="end">v1.0.4</text>
+</svg>

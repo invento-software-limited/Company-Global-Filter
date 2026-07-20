@@ -53,6 +53,7 @@ def get_permission_query_conditions(user, doctype=None):
 			"Customize Form",
 			"Property Setter",
 			"Custom Field",
+			"Company",
 		]
 
 		if doctype in system_doctypes:
@@ -66,16 +67,17 @@ def get_permission_query_conditions(user, doctype=None):
 		if not hasattr(frappe, "db") or not frappe.db:
 			return ""
 
+		# Check if this doctype has a company field FIRST
+		# to avoid infinite recursion when looking up user's company
+		company_field_name = get_company_field_name(doctype)
+
+		if not company_field_name:
+			return ""
+
 		# Get user's selected/default company
 		user_company = get_user_company()
 
 		if not user_company:
-			return ""
-
-		# Check if this doctype has a company field
-		company_field_name = get_company_field_name(doctype)
-
-		if not company_field_name:
 			return ""
 
 		# Return the condition to filter by company

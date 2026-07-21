@@ -15,6 +15,8 @@ def search_link(
 	searchfield=None,
 	reference_doctype=None,
 	ignore_user_permissions=False,
+	*args,
+	**kwargs
 ):
 	"""
 	Extended search_link method that applies company filtering

@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from frappe.desk.search import search_link as frappe_search_link
 
-from company_global_filter.hook_functions.global_company_filter import get_user_company
+from company_global_filter.hook_functions.global_company_filter import get_user_company, get_ignored_doctypes
 
 
 @frappe.whitelist()
@@ -51,7 +51,7 @@ def search_link(
 			)
 
 		# Skip company filtering for these doctypes
-		ignore_tables = ["Company", "User", "Module Def"]
+		ignore_tables = get_ignored_doctypes()
 		if doctype in ignore_tables:
 			return frappe_search_link(
 				doctype=doctype or "",
@@ -96,7 +96,7 @@ def search_link(
 		frappe.form_dict["filters"] = frappe.as_json(filters)
 
 		# frappe.log_error(f"Final filters: {filters}", "Search Link Debug")
-		return frappe_search_link(
+		results = frappe_search_link(
 			doctype=doctype,
 			txt=txt,
 			query=query,
@@ -106,6 +106,38 @@ def search_link(
 			reference_doctype=reference_doctype,
 			ignore_user_permissions=ignore_user_permissions,
 		)
+
+		# Post-filter results to ensure custom queries haven't bypassed the company filter
+		if results and (has_company_field or has_custom_company_field):
+			company_field = "company" if has_company_field else "custom_company"
+			
+			names = []
+			for r in results:
+				if isinstance(r, dict):
+					names.append(r.get("value"))
+				elif isinstance(r, (list, tuple)):
+					names.append(r[0])
+			
+			if names:
+				try:
+					valid_names = set()
+					docs = frappe.db.get_all(doctype, filters={"name": ("in", names)}, fields=["name", company_field])
+					for d in docs:
+						doc_company = d.get(company_field)
+						if not doc_company or doc_company == user_company:
+							valid_names.add(d.name)
+					
+					filtered_results = []
+					for r in results:
+						name = r.get("value") if isinstance(r, dict) else (r[0] if isinstance(r, (list, tuple)) else None)
+						if name in valid_names:
+							filtered_results.append(r)
+					
+					return filtered_results
+				except Exception:
+					pass
+					
+		return results
 	except Exception:
 		frappe.log_error("Error in search_link", "Search Link Error")
 		return frappe_search_link(

@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from frappe.desk.form.load import getdoc as frappe_getdoc
 
-from company_global_filter.hook_functions.global_company_filter import get_user_company
+from company_global_filter.hook_functions.global_company_filter import get_user_company, get_ignored_doctypes
 
 
 @frappe.whitelist()
@@ -19,7 +19,7 @@ def getdoc(doctype, name, user=None, for_edit=False):
 			return frappe_getdoc(doctype, name)
 
 		# Skip company filtering for these doctypes
-		ignore_tables = ["Company", "User", "Module Def"]
+		ignore_tables = get_ignored_doctypes()
 		if doctype in ignore_tables:
 			return frappe_getdoc(doctype, name)
 

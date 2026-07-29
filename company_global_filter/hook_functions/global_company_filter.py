@@ -10,6 +10,46 @@ def get_company_list():
 	return company_names
 
 
+def get_ignored_doctypes():
+	"""
+	Return list of system and setup doctypes that should bypass global company filtering
+	"""
+	return [
+		"User",
+		"Role",
+		"DocType",
+		"DocField",
+		"DocPerm",
+		"Print Format",
+		"Page",
+		"Report",
+		"Module Def",
+		"Desktop Icon",
+		"Workspace",
+		"Dashboard",
+		"Number Card",
+		"Dashboard Chart",
+		"Session Default",
+		"System Settings",
+		"Error Log",
+		"Activity Log",
+		"Email Queue",
+		"Communication",
+		"Comment",
+		"File",
+		"Version",
+		"Translation",
+		"Language",
+		"Letter Head",
+		"Email Template",
+		"Print Settings",
+		"Customize Form",
+		"Property Setter",
+		"Custom Field",
+		"Company",
+	]
+
+
 def get_permission_query_conditions(user, doctype=None):
 	"""
 	Apply global company filter to all doctypes that have a company field
@@ -21,39 +61,7 @@ def get_permission_query_conditions(user, doctype=None):
 			return ""
 
 		# Skip system/core doctypes to avoid boot issues
-		system_doctypes = [
-			"User",
-			"Role",
-			"DocType",
-			"DocField",
-			"DocPerm",
-			"Print Format",
-			"Page",
-			"Report",
-			"Module Def",
-			"Desktop Icon",
-			"Workspace",
-			"Dashboard",
-			"Number Card",
-			"Dashboard Chart",
-			"Session Default",
-			"System Settings",
-			"Error Log",
-			"Activity Log",
-			"Email Queue",
-			"Communication",
-			"Comment",
-			"File",
-			"Version",
-			"Translation",
-			"Language",
-			"Letter Head",
-			"Email Template",
-			"Print Settings",
-			"Customize Form",
-			"Property Setter",
-			"Custom Field",
-		]
+		system_doctypes = get_ignored_doctypes()
 
 		if doctype in system_doctypes:
 			return ""

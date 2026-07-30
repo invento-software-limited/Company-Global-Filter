@@ -5,3 +5,6 @@
 tags
 node_modules
 __pycache__
+
+.frappe-copilot
+company_global_filter/public/

@@ -5,6 +5,18 @@ from frappe.desk.search import search_link as frappe_search_link
 from company_global_filter.hook_functions.global_company_filter import get_user_company
 
 
+def get_clean_kwargs(kwargs):
+	import inspect
+	try:
+		sig = inspect.signature(frappe_search_link)
+		# Only keep keyword arguments that are accepted by frappe_search_link
+		return {k: v for k, v in kwargs.items() if k in sig.parameters}
+	except Exception:
+		# Fallback to only allowing known extra parameters like link_fieldname
+		allowed = {"link_fieldname"}
+		return {k: v for k, v in kwargs.items() if k in allowed}
+
+
 @frappe.whitelist()
 def search_link(
 	doctype=None,
@@ -50,6 +62,7 @@ def search_link(
 				searchfield=searchfield,
 				reference_doctype=reference_doctype,
 				ignore_user_permissions=ignore_user_permissions,
+				**get_clean_kwargs(kwargs)
 			)
 
 		# Skip company filtering for these doctypes
@@ -64,6 +77,7 @@ def search_link(
 				searchfield=searchfield or "name",
 				reference_doctype=reference_doctype or "",
 				ignore_user_permissions=bool(ignore_user_permissions),
+				**get_clean_kwargs(kwargs)
 			)
 
 		# Check if doctype has company or custom_company field
@@ -82,6 +96,7 @@ def search_link(
 				searchfield=searchfield,
 				reference_doctype=reference_doctype,
 				ignore_user_permissions=ignore_user_permissions,
+				**get_clean_kwargs(kwargs)
 			)
 
 		# Initialize filters if not exists
@@ -107,6 +122,7 @@ def search_link(
 			searchfield=searchfield,
 			reference_doctype=reference_doctype,
 			ignore_user_permissions=ignore_user_permissions,
+			**get_clean_kwargs(kwargs)
 		)
 	except Exception:
 		frappe.log_error("Error in search_link", "Search Link Error")
@@ -119,4 +135,5 @@ def search_link(
 			searchfield=searchfield,
 			reference_doctype=reference_doctype,
 			ignore_user_permissions=ignore_user_permissions,
+			**get_clean_kwargs(kwargs)
 		)

@@ -2,7 +2,12 @@ import frappe
 from frappe import _
 from frappe.desk.form.load import getdoc as frappe_getdoc
 
-from company_global_filter.hook_functions.global_company_filter import get_user_company
+from company_global_filter.hook_functions.global_company_filter import (
+	get_user_company,
+	is_filter_enabled,
+	treat_empty_company_as_global,
+	get_ignored_doctypes,
+)
 
 
 @frappe.whitelist()
@@ -11,16 +16,19 @@ def getdoc(doctype, name, user=None, for_edit=False, *args, **kwargs):
 	Extended getdoc method that applies company filtering
 	"""
 	try:
+		# Check if filter is enabled
+		if not is_filter_enabled():
+			return frappe_getdoc(doctype, name)
+
+		# Skip company filtering for ignored doctypes
+		if doctype in get_ignored_doctypes():
+			return frappe_getdoc(doctype, name)
+
 		# Get user's company
 		user_company = get_user_company()
 
 		# If no user company, proceed with original getdoc
 		if not user_company:
-			return frappe_getdoc(doctype, name)
-
-		# Skip company filtering for these doctypes
-		ignore_tables = ["Company", "User", "Module Def"]
-		if doctype in ignore_tables:
 			return frappe_getdoc(doctype, name)
 
 		# Check if doctype has company or custom_company field
@@ -42,13 +50,20 @@ def getdoc(doctype, name, user=None, for_edit=False, *args, **kwargs):
 		elif has_custom_company_field:
 			doc_company = doc.get("custom_company")
 
-		# If document company doesn't match user company, raise permission error
-		if doc_company and doc_company != user_company:
+		# Check if access is allowed
+		is_allowed = False
+		if not doc_company:
+			if treat_empty_company_as_global():
+				is_allowed = True
+		else:
+			if doc_company == user_company:
+				is_allowed = True
+
+		if not is_allowed:
 			frappe.throw(
 				_("You don't have permission to access this {0}").format(doctype), frappe.PermissionError
 			)
 
-			# If company matches or document has no company, proceed with original getdoc
 		return frappe_getdoc(doctype, name)
 
 	except frappe.PermissionError:

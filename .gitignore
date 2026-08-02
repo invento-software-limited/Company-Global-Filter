@@ -8,3 +8,21 @@ __pycache__
 
 .frappe-copilot
 company_global_filter/public/
+
+
+# DevMind AI Project Operating System
+.agents/
+.devmind/
+graphify-out/
+AI_SETUP.md
+ARCHITECTURE.md
+DATABASE.md
+SECURITY.md
+generate_graph_html.py
+bin/devmind
+pytest.ini
+tests/test_example.py
+phpunit.xml
+tests/ExampleTest.php
+jest.config.js
+tests/example.test.js

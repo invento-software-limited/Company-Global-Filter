@@ -12,16 +12,21 @@ def get_company_list():
 
 from frappe.utils import cint
 
+
 def get_ignored_doctypes():
 	if not hasattr(frappe.local, "global_company_filter_ignored_doctypes"):
 		ignored = []
 		try:
 			# Only attempt to read from database if the table/doctype exists
-			if hasattr(frappe, "db") and frappe.db and frappe.db.exists("DocType", "Global Company Filter Setting"):
+			if (
+				hasattr(frappe, "db")
+				and frappe.db
+				and frappe.db.exists("DocType", "Global Company Filter Setting")
+			):
 				db_ignored = frappe.get_all(
 					"Global Company Filter Ignore Doctype",
 					fields=["doctype_to_ignore"],
-					pluck="doctype_to_ignore"
+					pluck="doctype_to_ignore",
 				)
 				if db_ignored:
 					ignored = [d for d in db_ignored if d]
@@ -35,7 +40,11 @@ def is_filter_enabled():
 	if not hasattr(frappe.local, "global_company_filter_enabled"):
 		enabled = True
 		try:
-			if hasattr(frappe, "db") and frappe.db and frappe.db.exists("DocType", "Global Company Filter Setting"):
+			if (
+				hasattr(frappe, "db")
+				and frappe.db
+				and frappe.db.exists("DocType", "Global Company Filter Setting")
+			):
 				val = frappe.db.get_single_value("Global Company Filter Setting", "enabled")
 				if val is not None:
 					enabled = bool(cint(val))
@@ -49,8 +58,14 @@ def treat_empty_company_as_global():
 	if not hasattr(frappe.local, "global_company_filter_treat_empty_as_global"):
 		treat_empty = False
 		try:
-			if hasattr(frappe, "db") and frappe.db and frappe.db.exists("DocType", "Global Company Filter Setting"):
-				val = frappe.db.get_single_value("Global Company Filter Setting", "treat_empty_company_as_global")
+			if (
+				hasattr(frappe, "db")
+				and frappe.db
+				and frappe.db.exists("DocType", "Global Company Filter Setting")
+			):
+				val = frappe.db.get_single_value(
+					"Global Company Filter Setting", "treat_empty_company_as_global"
+				)
 				if val is not None:
 					treat_empty = bool(cint(val))
 		except Exception:
@@ -62,7 +77,11 @@ def treat_empty_company_as_global():
 def preload_ignore_doctypes():
 	"""Preload standard system doctypes into Global Company Filter Setting if empty"""
 	try:
-		if not hasattr(frappe, "db") or not frappe.db or not frappe.db.exists("DocType", "Global Company Filter Setting"):
+		if (
+			not hasattr(frappe, "db")
+			or not frappe.db
+			or not frappe.db.exists("DocType", "Global Company Filter Setting")
+		):
 			return
 
 		doc = frappe.get_doc("Global Company Filter Setting")

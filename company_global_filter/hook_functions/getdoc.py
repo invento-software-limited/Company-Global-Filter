@@ -3,10 +3,10 @@ from frappe import _
 from frappe.desk.form.load import getdoc as frappe_getdoc
 
 from company_global_filter.hook_functions.global_company_filter import (
+	get_ignored_doctypes,
 	get_user_company,
 	is_filter_enabled,
 	treat_empty_company_as_global,
-	get_ignored_doctypes,
 )
 
 

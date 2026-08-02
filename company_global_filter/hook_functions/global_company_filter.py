@@ -240,7 +240,7 @@ def get_company_field_name(doctype):
 
 
 @frappe.whitelist()
-def set_selected_company(company):
+def set_selected_company(company: str | None):
 	"""Set user's selected company in session"""
 	try:
 		if company:

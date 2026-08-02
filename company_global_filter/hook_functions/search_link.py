@@ -25,14 +25,14 @@ def get_clean_kwargs(kwargs):
 
 @frappe.whitelist()
 def search_link(
-	doctype=None,
-	txt=None,
-	query=None,
-	filters=None,
-	page_length=20,
-	searchfield=None,
-	reference_doctype=None,
-	ignore_user_permissions=False,
+	doctype: str | None = None,
+	txt: str | None = None,
+	query: str | None = None,
+	filters: dict | list | str | None = None,
+	page_length: int | None = 20,
+	searchfield: str | None = None,
+	reference_doctype: str | None = None,
+	ignore_user_permissions: bool | None = False,
 	*args,
 	**kwargs,
 ):

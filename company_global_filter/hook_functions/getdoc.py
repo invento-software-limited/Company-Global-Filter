@@ -11,7 +11,14 @@ from company_global_filter.hook_functions.global_company_filter import (
 
 
 @frappe.whitelist()
-def getdoc(doctype, name, user=None, for_edit=False, *args, **kwargs):
+def getdoc(
+	doctype: str,
+	name: str,
+	user: str | None = None,
+	for_edit: bool = False,
+	*args,
+	**kwargs,
+):
 	"""
 	Extended getdoc method that applies company filtering
 	"""

@@ -83,7 +83,8 @@ app_include_js = "cgf.bundle.js"
 # ------------
 
 # before_install = "company_global_filter.install.before_install"
-# after_install = "company_global_filter.install.after_install"
+after_install = "company_global_filter.hook_functions.global_company_filter.preload_ignore_doctypes"
+after_migrate = "company_global_filter.hook_functions.global_company_filter.preload_ignore_doctypes"
 
 # Uninstallation
 # ------------

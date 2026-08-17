@@ -7,6 +7,7 @@ from company_global_filter.hook_functions.global_company_filter import (
 	get_user_company,
 	is_filter_enabled,
 	treat_empty_company_as_global,
+	get_allowed_companies,
 )
 
 
@@ -63,7 +64,8 @@ def getdoc(
 			if treat_empty_company_as_global():
 				is_allowed = True
 		else:
-			if doc_company == user_company:
+			allowed_companies = get_allowed_companies(user_company)
+			if doc_company in allowed_companies:
 				is_allowed = True
 
 		if not is_allowed:

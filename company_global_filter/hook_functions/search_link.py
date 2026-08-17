@@ -7,6 +7,7 @@ from company_global_filter.hook_functions.global_company_filter import (
 	get_user_company,
 	is_filter_enabled,
 	treat_empty_company_as_global,
+	get_allowed_companies,
 )
 
 
@@ -123,26 +124,30 @@ def search_link(
 			filters = {}
 
 		# Add company filter based on which field exists and Treat Empty Company as Global setting
+		allowed_companies = get_allowed_companies(user_company)
 		if treat_empty_company_as_global():
-			company_val = ["in", [user_company, "", None]]
+			company_val = ["in", allowed_companies + ["", None]]
 		else:
-			company_val = user_company
+			if len(allowed_companies) == 1:
+				company_val = allowed_companies[0]
+			else:
+				company_val = ["in", allowed_companies]
 
 		if isinstance(filters, list):
 			if has_company_field:
 				filters.append(
 					[
 						"company",
-						"in" if treat_empty_company_as_global() else "=",
-						[user_company, "", None] if treat_empty_company_as_global() else user_company,
+						"in",
+						allowed_companies + ["", None] if treat_empty_company_as_global() else allowed_companies,
 					]
 				)
 			elif has_custom_company_field:
 				filters.append(
 					[
 						"custom_company",
-						"in" if treat_empty_company_as_global() else "=",
-						[user_company, "", None] if treat_empty_company_as_global() else user_company,
+						"in",
+						allowed_companies + ["", None] if treat_empty_company_as_global() else allowed_companies,
 					]
 				)
 		else:

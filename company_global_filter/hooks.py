@@ -170,14 +170,15 @@ permission_query_conditions = {
 # Testing
 # -------
 
-# before_tests = "company_global_filter.install.before_tests"
-
 # Overriding Methods
 # ------------------------------
 #
 override_whitelisted_methods = {
 	"frappe.desk.search.search_link": "company_global_filter.hook_functions.search_link.search_link",
 	"frappe.desk.form.load.getdoc": "company_global_filter.hook_functions.getdoc.getdoc",
+	"erpnext.setup.doctype.department.department.get_children": "company_global_filter.hook_functions.treeview.get_department_children",
+	"erpnext.accounts.utils.get_children": "company_global_filter.hook_functions.treeview.get_account_children",
+	"erpnext.stock.doctype.warehouse.warehouse.get_children": "company_global_filter.hook_functions.treeview.get_warehouse_children",
 }
 #
 # each overriding function accepts a `data` argument;
@@ -198,7 +199,6 @@ override_whitelisted_methods = {
 
 # Request Events
 # ----------------
-# before_request = ["company_global_filter.utils.before_request"]
 # after_request = ["company_global_filter.utils.after_request"]
 
 # Job Events

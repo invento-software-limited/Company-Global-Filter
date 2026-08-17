@@ -128,6 +128,50 @@ def preload_ignore_doctypes():
 		pass
 
 
+def get_allowed_companies(user_company):
+	"""
+	Get list of allowed companies based on user_company and 'Hide Descendants' settings
+	in User Permission. If hide_descendants is True, returns only user_company.
+	Otherwise, returns user_company and all its descendants.
+	"""
+	if not user_company:
+		return []
+
+	# Check if User Permission has hide_descendants enabled for this user and company
+	hide_descendants = False
+	if hasattr(frappe, "session") and frappe.session and frappe.session.user:
+		# We check if a User Permission exists specifically for this user and company
+		hide_descendants_val = frappe.db.get_value(
+			"User Permission",
+			{"user": frappe.session.user, "allow": "Company", "for_value": user_company},
+			"hide_descendants"
+		)
+		if hide_descendants_val is not None:
+			hide_descendants = bool(cint(hide_descendants_val))
+
+	if hide_descendants:
+		return [user_company]
+
+	# Fetch company and its descendants
+	try:
+		company_info = frappe.db.get_value("Company", user_company, ["lft", "rgt"], as_dict=True)
+		if company_info:
+			descendants = frappe.get_all(
+				"Company",
+				filters={
+					"lft": [">=", company_info.lft],
+					"rgt": ["<=", company_info.rgt]
+				},
+				pluck="name"
+			)
+			if descendants:
+				return list(dict.fromkeys(descendants))
+	except Exception:
+		pass
+
+	return [user_company]
+
+
 def get_permission_query_conditions(user, doctype=None):
 	"""
 	Apply global company filter to all doctypes that have a company field
@@ -167,11 +211,21 @@ def get_permission_query_conditions(user, doctype=None):
 		if not user_company:
 			return ""
 
+		allowed_companies = get_allowed_companies(user_company)
+		if not allowed_companies:
+			return ""
+
 		# Return the condition to filter by company
-		if treat_empty_company_as_global():
-			condition = f"(`tab{doctype}`.`{company_field_name}` = {frappe.db.escape(user_company)} OR `tab{doctype}`.`{company_field_name}` = '' OR `tab{doctype}`.`{company_field_name}` IS NULL)"
+		if len(allowed_companies) == 1:
+			comp_condition = f"`tab{doctype}`.`{company_field_name}` = {frappe.db.escape(allowed_companies[0])}"
 		else:
-			condition = f"`tab{doctype}`.`{company_field_name}` = {frappe.db.escape(user_company)}"
+			escaped_comps = ", ".join(frappe.db.escape(c) for c in allowed_companies)
+			comp_condition = f"`tab{doctype}`.`{company_field_name}` IN ({escaped_comps})"
+
+		if treat_empty_company_as_global():
+			condition = f"({comp_condition} OR `tab{doctype}`.`{company_field_name}` = '' OR `tab{doctype}`.`{company_field_name}` IS NULL)"
+		else:
+			condition = comp_condition
 
 		return condition
 

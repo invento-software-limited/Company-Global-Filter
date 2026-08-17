@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-04 11:20:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "fieldname",
+  "editable",
+  "editor_type",
+  "required",
+  "allow_bulk_edit",
+  "width"
+ ],
+ "fields": [
+  {
+   "fieldname": "fieldname",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Fieldname",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "editable",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Editable"
+  },
+  {
+   "fieldname": "editor_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Editor Type",
+   "options": "\nData\nSmall Text\nInt\nFloat\nCurrency\nDate\nDatetime\nCheck\nSelect\nLink\nDynamic Link\nTime"
+  },
+  {
+   "default": "0",
+   "fieldname": "required",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_bulk_edit",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Allow Bulk Edit"
+  },
+  {
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Width (px)"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-04 11:20:00.000000",
+ "modified_by": "Administrator",
+ "module": "Company Global Filter",
+ "name": "Inline Editor Field",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

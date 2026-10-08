@@ -159,27 +159,43 @@ def search_link(
 				company_val = ["in", allowed_companies]
 
 		if isinstance(filters, list):
-			if has_company_field:
-				filters.append(
-					[
-						"company",
-						"in",
-						allowed_companies + ["", None] if treat_empty_company_as_global() else allowed_companies,
-					]
+			has_existing_company_filter = any(
+				isinstance(f, (list, tuple))
+				and len(f) > 1
+				and (
+					(len(f) >= 3 and f[1] in ("company", "custom_company"))
+					or f[0] in ("company", "custom_company")
 				)
-			elif has_custom_company_field:
-				filters.append(
-					[
-						"custom_company",
-						"in",
-						allowed_companies + ["", None] if treat_empty_company_as_global() else allowed_companies,
-					]
-				)
+				for f in filters
+			)
+			if not has_existing_company_filter:
+				if has_company_field:
+					filters.append(
+						[
+							"company",
+							"in",
+							allowed_companies + ["", None] if treat_empty_company_as_global() else allowed_companies,
+						]
+					)
+				elif has_custom_company_field:
+					filters.append(
+						[
+							"custom_company",
+							"in",
+							allowed_companies + ["", None] if treat_empty_company_as_global() else allowed_companies,
+						]
+					)
 		else:
 			if has_company_field:
-				filters["company"] = company_val
+				if "company" not in filters:
+					filters["company"] = company_val
+				elif isinstance(filters["company"], str) and filters["company"] not in allowed_companies:
+					filters["company"] = company_val
 			elif has_custom_company_field:
-				filters["custom_company"] = company_val
+				if "custom_company" not in filters:
+					filters["custom_company"] = company_val
+				elif isinstance(filters["custom_company"], str) and filters["custom_company"] not in allowed_companies:
+					filters["custom_company"] = company_val
 
 		# Update form_dict filters for consistency
 		frappe.form_dict["filters"] = frappe.as_json(filters)
@@ -201,7 +217,7 @@ def search_link(
 			doctype=doctype,
 			txt=txt or "",
 			query=query,
-			filters=filters or {},
+			filters=raw_filters if raw_filters is not None else (filters or {}),
 			page_length=page_length or 20,
 			searchfield=searchfield,
 			reference_doctype=reference_doctype,

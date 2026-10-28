@@ -115,12 +115,15 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 					display: none !important;
 				}
 
-				/* Dropdown — fixed-positioned so it escapes sidebar overflow/clipping */
+				/* Dropdown — moved to <body> while open and fixed-positioned under the button, so the
+				   sidebar (overflow hidden, transformed children since Frappe 16.53) cannot clip it */
 				#sidebar-company-dropdown {
 					position: fixed !important;
 					width: 220px;
+					max-width: calc(100vw - 16px);
+					overflow-y: auto;
 					border-radius: 10px;
-					margin-top: 4px;
+					margin: 0;
 					box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
 					z-index: 1060;
 				}
@@ -171,6 +174,8 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 		try {
 			let $sidebar = $(".body-sidebar");
 			if (!$sidebar.length) return;
+			// A menu left open in <body> by a sidebar that was re-rendered
+			$("body > #sidebar-company-dropdown").remove();
 
 			let company = frappe.defaults.get_user_default("Company") || __("Select Company");
 
@@ -194,7 +199,7 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 			this.$container = $(`
 				<div class="company-switcher-list">
 					<div class="dropdown">
-						<button class="switcher-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<button class="switcher-btn" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false">
 							<div class="company-icon-container">
 								${icon_html}
 							</div>
@@ -230,28 +235,37 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 	}
 
 	bind_events() {
-		// Align fixed-position dropdown to the trigger button on open
+		this.$dropdown = this.$container.find("#sidebar-company-dropdown");
+		const $dropdown_parent = this.$container.find(".dropdown");
+
+		// Open under the trigger button, inside the window, outside the sidebar
 		this.$container.on("show.bs.dropdown", () => {
 			const btn = this.$container.find(".switcher-btn")[0];
 			if (!btn) return;
 			const rect = btn.getBoundingClientRect();
-			const $dropdown = this.$container.find("#sidebar-company-dropdown");
-			$dropdown.css({
-				top: rect.bottom + 4,
-				left: rect.left,
+			const top = rect.bottom + 4;
+			const width = Math.min(220, window.innerWidth - 16);
+			this.$dropdown.appendTo(document.body).css({
+				top: top,
+				left: Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)),
+				maxHeight: Math.max(160, window.innerHeight - top - 8),
 			});
 		});
 
 		this.$container.on("shown.bs.dropdown", () => {
-			this.$container.find("#sidebar-company-search").focus();
+			this.$dropdown.find("#sidebar-company-search").focus();
 		});
 
-		this.$container.find("#sidebar-company-search").on("input", (e) => {
+		this.$container.on("hidden.bs.dropdown", () => {
+			this.$dropdown.appendTo($dropdown_parent);
+		});
+
+		this.$dropdown.find("#sidebar-company-search").on("input", (e) => {
 			let val = $(e.currentTarget).val().toLowerCase();
 			this.render_list(val);
 		});
 
-		this.$container.find("#sidebar-company-search").on("click", (e) => {
+		this.$dropdown.find("#sidebar-company-search").on("click", (e) => {
 			e.stopPropagation();
 		});
 	}
@@ -267,7 +281,7 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 	}
 
 	render_list(filter = "") {
-		let $options = this.$container.find("#sidebar-company-options");
+		let $options = this.$dropdown.find("#sidebar-company-options");
 		if (!$options.length) return;
 
 		$options.empty();

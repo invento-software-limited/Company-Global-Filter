@@ -10,168 +10,6 @@ def get_company_list():
 	return company_names
 
 
-from frappe.utils import cint
-
-
-def get_ignored_doctypes():
-	if not hasattr(frappe.local, "global_company_filter_ignored_doctypes"):
-		ignored = []
-		try:
-			# Only attempt to read from database if the table/doctype exists
-			if (
-				hasattr(frappe, "db")
-				and frappe.db
-				and frappe.db.exists("DocType", "Global Company Filter Setting")
-			):
-				db_ignored = frappe.get_all(
-					"Global Company Filter Ignore Doctype",
-					fields=["doctype_to_ignore"],
-					pluck="doctype_to_ignore",
-				)
-				if db_ignored:
-					ignored = [d for d in db_ignored if d]
-		except Exception:
-			pass
-		frappe.local.global_company_filter_ignored_doctypes = ignored
-	return frappe.local.global_company_filter_ignored_doctypes
-
-
-def is_filter_enabled():
-	if not hasattr(frappe.local, "global_company_filter_enabled"):
-		enabled = True
-		try:
-			if (
-				hasattr(frappe, "db")
-				and frappe.db
-				and frappe.db.exists("DocType", "Global Company Filter Setting")
-			):
-				val = frappe.db.get_single_value("Global Company Filter Setting", "enabled")
-				if val is not None:
-					enabled = bool(cint(val))
-		except Exception:
-			pass
-		frappe.local.global_company_filter_enabled = enabled
-	return frappe.local.global_company_filter_enabled
-
-
-def treat_empty_company_as_global():
-	if not hasattr(frappe.local, "global_company_filter_treat_empty_as_global"):
-		treat_empty = False
-		try:
-			if (
-				hasattr(frappe, "db")
-				and frappe.db
-				and frappe.db.exists("DocType", "Global Company Filter Setting")
-			):
-				val = frappe.db.get_single_value(
-					"Global Company Filter Setting", "treat_empty_company_as_global"
-				)
-				if val is not None:
-					treat_empty = bool(cint(val))
-		except Exception:
-			pass
-		frappe.local.global_company_filter_treat_empty_as_global = treat_empty
-	return frappe.local.global_company_filter_treat_empty_as_global
-
-
-def preload_ignore_doctypes():
-	"""Preload standard system doctypes into Global Company Filter Setting if empty"""
-	try:
-		if (
-			not hasattr(frappe, "db")
-			or not frappe.db
-			or not frappe.db.exists("DocType", "Global Company Filter Setting")
-		):
-			return
-
-		doc = frappe.get_doc("Global Company Filter Setting")
-		if not doc.table_adzt:
-			system_doctypes = [
-				"User",
-				"Role",
-				"DocType",
-				"DocField",
-				"DocPerm",
-				"Print Format",
-				"Page",
-				"Report",
-				"Module Def",
-				"Desktop Icon",
-				"Workspace",
-				"Dashboard",
-				"Number Card",
-				"Dashboard Chart",
-				"Session Default",
-				"System Settings",
-				"Error Log",
-				"Activity Log",
-				"Email Queue",
-				"Communication",
-				"Comment",
-				"File",
-				"Version",
-				"Translation",
-				"Language",
-				"Letter Head",
-				"Email Template",
-				"Print Settings",
-				"Customize Form",
-				"Property Setter",
-				"Custom Field",
-				"Company",
-			]
-			for dt in system_doctypes:
-				doc.append("table_adzt", {"doctype_to_ignore": dt})
-			doc.save(ignore_permissions=True)
-			frappe.db.commit()
-	except Exception:
-		pass
-
-
-def get_allowed_companies(user_company):
-	"""
-	Get list of allowed companies based on user_company and 'Hide Descendants' settings
-	in User Permission. If hide_descendants is True, returns only user_company.
-	Otherwise, returns user_company and all its descendants.
-	"""
-	if not user_company:
-		return []
-
-	# Check if User Permission has hide_descendants enabled for this user and company
-	hide_descendants = False
-	if hasattr(frappe, "session") and frappe.session and frappe.session.user:
-		# We check if a User Permission exists specifically for this user and company
-		hide_descendants_val = frappe.db.get_value(
-			"User Permission",
-			{"user": frappe.session.user, "allow": "Company", "for_value": user_company},
-			"hide_descendants"
-		)
-		if hide_descendants_val is not None:
-			hide_descendants = bool(cint(hide_descendants_val))
-
-	if hide_descendants:
-		return [user_company]
-
-	# Fetch company and its descendants
-	try:
-		company_info = frappe.db.get_value("Company", user_company, ["lft", "rgt"], as_dict=True)
-		if company_info:
-			descendants = frappe.get_all(
-				"Company",
-				filters={
-					"lft": [">=", company_info.lft],
-					"rgt": ["<=", company_info.rgt]
-				},
-				pluck="name"
-			)
-			if descendants:
-				return list(dict.fromkeys(descendants))
-	except Exception:
-		pass
-
-	return [user_company]
-
-
 def get_permission_query_conditions(user, doctype=None):
 	"""
 	Apply global company filter to all doctypes that have a company field
@@ -182,12 +20,42 @@ def get_permission_query_conditions(user, doctype=None):
 		if doctype is None:
 			return ""
 
-		# Check if filter is enabled
-		if not is_filter_enabled():
-			return ""
+		# Skip system/core doctypes to avoid boot issues
+		system_doctypes = [
+			"User",
+			"Role",
+			"DocType",
+			"DocField",
+			"DocPerm",
+			"Print Format",
+			"Page",
+			"Report",
+			"Module Def",
+			"Desktop Icon",
+			"Workspace",
+			"Dashboard",
+			"Number Card",
+			"Dashboard Chart",
+			"Session Default",
+			"System Settings",
+			"Error Log",
+			"Activity Log",
+			"Email Queue",
+			"Communication",
+			"Comment",
+			"File",
+			"Version",
+			"Translation",
+			"Language",
+			"Letter Head",
+			"Email Template",
+			"Print Settings",
+			"Customize Form",
+			"Property Setter",
+			"Custom Field",
+		]
 
-		# Skip system/core doctypes and user-configured ignored doctypes to avoid boot issues
-		if doctype in get_ignored_doctypes():
+		if doctype in system_doctypes:
 			return ""
 
 		# Check if session is available (avoid boot errors)
@@ -198,34 +66,21 @@ def get_permission_query_conditions(user, doctype=None):
 		if not hasattr(frappe, "db") or not frappe.db:
 			return ""
 
-		# Check if this doctype has a company field FIRST
-		# to avoid infinite recursion when looking up user's company
-		company_field_name = get_company_field_name(doctype)
-
-		if not company_field_name:
-			return ""
-
 		# Get user's selected/default company
 		user_company = get_user_company()
 
 		if not user_company:
 			return ""
 
-		allowed_companies = get_allowed_companies(user_company)
-		if not allowed_companies:
+		# Check if this doctype has a company field
+		company_field_name = get_company_field_name(doctype)
+
+		if not company_field_name:
 			return ""
 
 		# Return the condition to filter by company
-		if len(allowed_companies) == 1:
-			comp_condition = f"`tab{doctype}`.`{company_field_name}` = {frappe.db.escape(allowed_companies[0])}"
-		else:
-			escaped_comps = ", ".join(frappe.db.escape(c) for c in allowed_companies)
-			comp_condition = f"`tab{doctype}`.`{company_field_name}` IN ({escaped_comps})"
-
-		if treat_empty_company_as_global():
-			condition = f"({comp_condition} OR `tab{doctype}`.`{company_field_name}` = '' OR `tab{doctype}`.`{company_field_name}` IS NULL)"
-		else:
-			condition = comp_condition
+		# Use a more robust approach to avoid SQL syntax issues
+		condition = f"`tab{doctype}`.`{company_field_name}` = {frappe.db.escape(user_company)}"
 
 		return condition
 
@@ -294,7 +149,7 @@ def get_company_field_name(doctype):
 
 
 @frappe.whitelist()
-def set_selected_company(company: str | None):
+def set_selected_company(company):
 	"""Set user's selected company in session"""
 	try:
 		if company:

@@ -41,15 +41,15 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 					width: 100% !important;
 					transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 					font-size: 14px !important;
-					color: rgb(56, 56, 56) !important;
+					color: var(--ink-gray-8) !important;
 					text-decoration: none !important;
 					cursor: pointer;
 				}
 				.company-switcher-list .switcher-btn:hover {
-					background-color: var(--bg-light-gray, #f3f3f3) !important;
+					background-color: var(--surface-gray-2) !important;
 				}
 				.company-switcher-list .switcher-btn:active {
-					background-color: var(--bg-gray, #ebebeb) !important;
+					background-color: var(--surface-gray-3) !important;
 				}
 
 				.company-switcher-list .company-icon-container {
@@ -92,7 +92,7 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 
 				.company-switcher-list .switcher-icon {
 					font-size: 10px;
-					color: rgb(140, 140, 140);
+					color: var(--ink-gray-5);
 					margin-left: 8px;
 				}
 

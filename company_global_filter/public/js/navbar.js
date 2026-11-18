@@ -327,7 +327,7 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 						message: __("Company set to {0}", [company]),
 						indicator: "green",
 					});
-					location.reload();
+					reload_on_company(company);
 				} else {
 					frappe.dom.unfreeze();
 				}
@@ -335,5 +335,24 @@ company_global_filter.ui.SidebarCompanySwitcher = class {
 		});
 	}
 };
+
+// Reload on the new company. A report or a list keeps its filters in the address bar
+// (?company=...), and a plain reload would reopen it on the company switched away from, so that
+// filter is moved to the new company first.
+function reload_on_company(company) {
+	const url = new URL(window.location.href);
+	let moved = false;
+	for (const key of ["company", "custom_company"]) {
+		if (url.searchParams.has(key)) {
+			url.searchParams.set(key, company);
+			moved = true;
+		}
+	}
+	if (moved) {
+		window.location.replace(url.toString());
+	} else {
+		location.reload();
+	}
+}
 
 new company_global_filter.ui.SidebarCompanySwitcher();
